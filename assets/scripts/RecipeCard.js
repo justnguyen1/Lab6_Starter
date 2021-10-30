@@ -1,8 +1,10 @@
 class RecipeCard extends HTMLElement {
   constructor() {
     // Part 1 Expose - TODO
+    super();
 
     // You'll want to attach the shadow DOM here
+    this.shadow = this.attachShadow({mode:'open'});
   }
 
   set data(data) {
@@ -100,6 +102,62 @@ class RecipeCard extends HTMLElement {
     // created in the constructor()
 
     // Part 1 Expose - TODO
+    this.shadow.appendChild(styleElem);
+    this.shadow.appendChild(card);
+
+    // set up card structure
+    const recipeTitleImg = document.createElement('img');
+    recipeTitleImg.setAttribute('src', getImage(data));
+    recipeTitleImg.setAttribute('alt', searchForKey(data, 'headline'));
+    card.appendChild(recipeTitleImg);
+
+    const titleP = document.createElement('p');
+    titleP.setAttribute('class', 'title');
+    const titleLink = document.createElement('a');
+    titleLink.innerHTML = searchForKey(data, 'headline');
+    titleLink.setAttribute('href', getUrl(data));
+    titleP.appendChild(titleLink);
+    card.appendChild(titleP);
+
+    const organization = document.createElement('p');
+    organization.setAttribute('class', 'organization');
+    organization.innerHTML = getOrganization(data);
+    card.appendChild(organization);
+
+    const ratingDiv = document.createElement('div');
+    ratingDiv.setAttribute('class', 'rating');
+    let ratings = searchForKey(data, 'aggregateRating');
+    if (ratings === undefined) {
+      const noReview = document.createElement('span');
+      noReview.innerHTML = 'No Reviews';
+      ratingDiv.appendChild(noReview);
+    } else {
+      const averageReview = document.createElement('span');
+      averageReview.innerHTML = ratings.ratingValue;
+      ratingDiv.appendChild(averageReview);
+
+      const averageImage = document.createElement('img');
+      let averageRounded = Math.round(ratings.ratingValue);
+      averageImage.setAttribute('src', `assets/images/icons/${averageRounded}-star.svg`);
+      averageImage.setAttribute('alt', `${averageRounded} stars`);
+      ratingDiv.appendChild(averageImage);
+
+      const totalReviews = document.createElement('span');
+      totalReviews.innerHTML = '(' + ratings.ratingCount + ')';
+      ratingDiv.appendChild(totalReviews);
+    }
+    card.appendChild(ratingDiv);
+
+    const time = document.createElement('time');
+    let convertedTime = convertTime(searchForKey(data, 'totalTime'));
+    time.innerHTML = convertedTime;
+    card.appendChild(time);
+
+    const ingredients = document.createElement('p');
+    ingredients.setAttribute('class', 'ingredients');
+    let convertedIngredients = createIngredientList(searchForKey(data, 'recipeIngredient'));
+    ingredients.innerHTML = convertedIngredients;
+    card.appendChild(ingredients);
   }
 }
 
@@ -161,6 +219,18 @@ function getOrganization(data) {
       }
     }
   };
+  return null;
+}
+
+function getImage(data) {
+  if (data.image?.url) return data.image?.url;
+  if (data['@graph']) {
+    for (let i = 0; i < data['@graph'].length; i++) {
+      if (data['@graph'][i]['@type'] == 'ImageObject') {
+        return data['@graph'][i].url;
+      }
+    }
+  }
   return null;
 }
 
