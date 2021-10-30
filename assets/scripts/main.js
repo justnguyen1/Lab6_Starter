@@ -79,8 +79,9 @@ function createRecipeCards() {
   // show any others you've added when the user clicks on the "Show more" button.
 
   // Part 1 Expose - TODO
-  let count = 0;
-  for(const key in recipeData){
+  let count = 0;  
+
+  for(const key of recipes){
     if (!more && count == 3) {
       break;
     }
