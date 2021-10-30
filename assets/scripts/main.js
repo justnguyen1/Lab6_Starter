@@ -5,9 +5,13 @@
 const recipes = [
   'https://introweb.tech/assets/json/ghostCookies.json',
   'https://introweb.tech/assets/json/birthdayCake.json',
-  'https://introweb.tech/assets/json/chocolateChip.json'
+  'https://introweb.tech/assets/json/chocolateChip.json',
+  'assets/recipes/recipe1.json',
+  'assets/recipes/recipe2.json',
+  'assets/recipes/recipe3.json'
 ];
 
+let more = false;
 // Once all of the recipes that were specified above have been fetched, their
 // data will be added to this object below. You may use whatever you like for the
 // keys as long as it's unique, one suggestion might but the URL itself
@@ -75,11 +79,16 @@ function createRecipeCards() {
   // show any others you've added when the user clicks on the "Show more" button.
 
   // Part 1 Expose - TODO
+  let count = 0;
   for(const key in recipeData){
+    if (!more && count == 3) {
+      break;
+    }
     let recipeCard = document.createElement('recipe-card');
     recipeCard.data = recipeData[key];
     let mainElement = document.querySelector('main');
     mainElement.appendChild(recipeCard);
+    count++;
   }
 }
 
@@ -92,4 +101,29 @@ function bindShowMore() {
   // in the recipeData object where you stored them/
 
   // Part 2 Explore - TODO
+  const showMoreButton = document.querySelector('button');
+  let mainElement = document.querySelector('main');
+  let child = mainElement.lastElementChild;
+
+  showMoreButton.addEventListener("click", function() {
+    if (showMoreButton.textContent === 'Show more') {
+      showMoreButton.textContent = 'Show less';
+      more = true;
+      child = mainElement.lastElementChild;
+      while (child) {
+        mainElement.removeChild(child);
+        child = mainElement.lastElementChild;
+      }
+      createRecipeCards();
+    } else {
+      showMoreButton.textContent = 'Show more';
+      more = false;
+      child = mainElement.lastElementChild;
+      while (child) {
+        mainElement.removeChild(child);
+        child = mainElement.lastElementChild;
+      }
+      createRecipeCards();
+    }
+  });
 }
